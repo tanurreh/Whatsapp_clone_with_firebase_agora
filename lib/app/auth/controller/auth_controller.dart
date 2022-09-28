@@ -4,6 +4,7 @@ import 'package:whatsapp_clone/app/auth/screen/otp_screen.dart';
 import 'package:whatsapp_clone/app/auth/screen/user_information_screen.dart';
 import 'package:whatsapp_clone/app/landing/landing_screen.dart';
 import 'package:whatsapp_clone/app/mobile_layout_screen.dart';
+import 'package:whatsapp_clone/app/model/user_model.dart';
 import 'package:whatsapp_clone/app/services.dart/database_services.dart';
 
 class AuthController extends GetxController {
@@ -71,6 +72,11 @@ class AuthController extends GetxController {
     } on FirebaseAuthException catch (e) {
       Get.snackbar('Verification Failed', e.toString());
     }
+  }
+
+  Stream<UserModel>getCurrentUser(String uid) {
+    return db.userCollection.doc(uid).snapshots().map(
+        (event) => UserModel.fromMap(event.data()as Map<String, dynamic>));
   }
 
   signOut() async {

@@ -2,7 +2,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:whatsapp_clone/app/data/constants.dart';
-import 'package:whatsapp_clone/app/modules/home/controllers/auth_controller.dart';
+import 'package:whatsapp_clone/app/auth/controller/auth_controller.dart';
 import 'package:whatsapp_clone/app/widgets/custom_button.dart';
 
 

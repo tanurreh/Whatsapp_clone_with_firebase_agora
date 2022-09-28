@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:whatsapp_clone/app/auth/controller/user_controller.dart';
+import 'package:whatsapp_clone/app/chat/widgets/contact_list.dart';
 import 'package:whatsapp_clone/app/data/constants.dart';
 import 'package:whatsapp_clone/app/select_contacts/screen/contact_screen.dart';
 
@@ -12,6 +14,7 @@ class MobileLayoutScreen extends StatefulWidget {
 
 class _MobileLayoutScreenState extends State<MobileLayoutScreen>
     with WidgetsBindingObserver, TickerProviderStateMixin {
+ final  UserController _userController = Get.put(UserController());
   late TabController tabBarController;
   @override
   void initState() {
@@ -103,7 +106,7 @@ class _MobileLayoutScreenState extends State<MobileLayoutScreen>
         body: TabBarView(
           controller: tabBarController,
           children: const [
-            Text('ContactsList'),
+            ContactsList(),
             Text('StatusContactsScreen'),
             //  ContactsList(),
             // StatusContactsScreen(),

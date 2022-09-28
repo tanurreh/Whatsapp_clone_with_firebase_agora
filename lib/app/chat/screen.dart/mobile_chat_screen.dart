@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:whatsapp_clone/app/auth/controller/auth_controller.dart';
+import 'package:whatsapp_clone/app/chat/widgets/bottom_text_feild.dart';
 import 'package:whatsapp_clone/app/data/constants.dart';
+import 'package:whatsapp_clone/app/model/user_model.dart';
 
 class MobileChatScreen extends StatelessWidget {
   // static const String routeName = '/mobile-chat-screen';
-  // final String name;
-  // final String uid;
+  final String name;
+  final String uid;
   // final bool isGroupChat;
   // final String profilePic;
   const MobileChatScreen({
     Key? key,
-    // required this.name,
-    // required this.uid,
+    required this.name,
+    required this.uid,
     // required this.isGroupChat,
     // required this.profilePic,
   }) : super(key: key);
@@ -30,6 +33,27 @@ class MobileChatScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: CustomColor.appBarColor,
+        title: StreamBuilder(
+            stream: AuthController.instance.getCurrentUser(uid),
+            builder: ((context, snapshot) {
+              UserModel _user = snapshot.data! as UserModel;
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(_user.name),
+                  Text(
+                    _user.isOnline ? 'online' : 'offline',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ],
+              );
+            })),
         // title: isGroupChat
         //     ? Text(name)
         //     : StreamBuilder<UserModel>(
@@ -69,16 +93,17 @@ class MobileChatScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Expanded(
-          //   child: ChatList(
-          //     recieverUserId: uid,
-          //     isGroupChat: isGroupChat,
-          //   ),
+          //  Expanded(
+          //   child: SizedBox(),
+          // //   child: ChatList(
+          // //     recieverUserId: uid,
+          // //     isGroupChat: isGroupChat,
+          // //   ),
           // ),
-          // BottomChatField(
-          //   recieverUserId: uid,
-          //   isGroupChat: isGroupChat,
-          // ),
+          BottomChatField(
+            recieverUserId: uid,
+            //isGroupChat: isGroupChat,
+          ),
         ],
       ),
     );

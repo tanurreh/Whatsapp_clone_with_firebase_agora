@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:whatsapp_clone/app/data/constants.dart';
 import 'package:whatsapp_clone/app/landing/landing_screen.dart';
-import 'package:whatsapp_clone/app/modules/home/controllers/auth_controller.dart';
-import 'package:whatsapp_clone/app/modules/home/views/home_view.dart';
+import 'package:whatsapp_clone/app/auth/controller/auth_controller.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Firebase.initializeApp().then((value) => Get.put(AuthController()));

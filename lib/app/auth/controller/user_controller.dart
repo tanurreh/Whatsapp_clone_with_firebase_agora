@@ -4,7 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:whatsapp_clone/app/mobile_layout_screen.dart';
 import 'package:whatsapp_clone/app/model/user_model.dart';
-import 'package:whatsapp_clone/app/modules/home/controllers/auth_controller.dart';
+import 'package:whatsapp_clone/app/auth/controller/auth_controller.dart';
 import 'package:whatsapp_clone/app/services.dart/database_services.dart';
 
 class UserController extends GetxController {
