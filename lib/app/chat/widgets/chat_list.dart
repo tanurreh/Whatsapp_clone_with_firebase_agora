@@ -52,7 +52,7 @@ class _ChatListState extends State<ChatList> {
         stream: _chatController.getChatStream(widget.recieverUserId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return Center(child: const CircularProgressIndicator());
           }
 
           SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -82,7 +82,7 @@ class _ChatListState extends State<ChatList> {
                 return MyMessageCard(
                   message: messageData.text,
                   date: timeSent,
-                  // type: messageData.type,
+                  type: messageData.type,
                   // repliedText: messageData.repliedMessage,
                   // username: messageData.repliedTo,
                   // repliedMessageType: messageData.repliedMessageType,
@@ -97,7 +97,7 @@ class _ChatListState extends State<ChatList> {
               return SenderMessageCard(
                 message: messageData.text,
                 date: timeSent,
-                //type: messageData.type,
+                type: messageData.type,
                 // username: messageData.repliedTo,
                 // repliedMessageType: messageData.repliedMessageType,
                 // onRightSwipe: () => onMessageSwipe(

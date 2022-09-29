@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:get/get.dart';
 import 'package:whatsapp_clone/app/auth/controller/user_controller.dart';
+import 'package:whatsapp_clone/app/chat/chat_enum.dart';
 import 'package:whatsapp_clone/app/chat/controller/chat_controller.dart';
 import 'package:whatsapp_clone/app/data/constants.dart';
+import 'package:whatsapp_clone/app/services.dart/image_picker_services.dart';
 
 class BottomChatField extends StatefulWidget {
   final String recieverUserId;
@@ -78,69 +83,56 @@ class _BottomChatFieldState extends State<BottomChatField> {
     //}
   }
 
-  // void sendFileMessage(
-  //   File file,
-  //   MessageEnum messageEnum,
-  // ) {
-  //   ref.read(chatControllerProvider).sendFileMessage(
-  //         context,
-  //         file,
-  //         widget.recieverUserId,
-  //         messageEnum,
-  //         widget.isGroupChat,
-  //       );
-  // }
 
-  // void selectImage() async {
-  //   File? image = await pickImageFromGallery(context);
-  //   if (image != null) {
-  //     sendFileMessage(image, MessageEnum.image);
-  //   }
-  // }
+  void selectImage() async {
+    File? image = await PickerServices().pickImageFromGallery();
+    if (image != null) {
+      _chatController.sendFileMessage(  file: image, messageEnum:MessageEnum.image, recieverUserId: widget.recieverUserId, senderUserData: _userController.currentUser,);
+    }
+  }
 
-  // void selectVideo() async {
-  //   File? video = await pickVideoFromGallery(context);
-  //   if (video != null) {
-  //     sendFileMessage(video, MessageEnum.video);
-  //   }
-  // }
+  void selectVideo() async {
+    File? video = await PickerServices().pickVideoFromGallery();
+    if (video != null) {
+      _chatController.sendFileMessage(  file: video, messageEnum:MessageEnum.video, recieverUserId: widget.recieverUserId, senderUserData: _userController.currentUser,);
+    }
+  }
 
-  // void selectGIF() async {
-  //   final gif = await pickGIF(context);
-  //   if (gif != null) {
-  //     ref.read(chatControllerProvider).sendGIFMessage(
-  //           context,
-  //           gif.url,
-  //           widget.recieverUserId,
-  //           widget.isGroupChat,
-  //         );
-  //   }
-  // }
+  void selectGIF() async {
+    final gif = await PickerServices().pickGIF(context);
+    
+    if (gif != null) {
+       int gifUrlPartIndex = gif.url.lastIndexOf('-') + 1;
+    String gifUrlPart = gif.url.substring(gifUrlPartIndex);
+    String newgifUrl = 'https://i.giphy.com/media/$gifUrlPart/200.gif';
+    _chatController.sendGIFMessage(gifUrl: newgifUrl, recieverUserId: widget.recieverUserId, senderUserData: _userController.currentUser);
+    }
+  }
 
-  // void hideEmojiContainer() {
-  //   setState(() {
-  //     isShowEmojiContainer = false;
-  //   });
-  // }
+  void hideEmojiContainer() {
+    setState(() {
+      isShowEmojiContainer = false;
+    });
+  }
 
-  // void showEmojiContainer() {
-  //   setState(() {
-  //     isShowEmojiContainer = true;
-  //   });
-  // }
+  void showEmojiContainer() {
+    setState(() {
+      isShowEmojiContainer = true;
+    });
+  }
 
-  // void showKeyboard() => focusNode.requestFocus();
-  // void hideKeyboard() => focusNode.unfocus();
+  void showKeyboard() => focusNode.requestFocus();
+  void hideKeyboard() => focusNode.unfocus();
 
-  // void toggleEmojiKeyboardContainer() {
-  //   if (isShowEmojiContainer) {
-  //     showKeyboard();
-  //     hideEmojiContainer();
-  //   } else {
-  //     hideKeyboard();
-  //     showEmojiContainer();
-  //   }
-  // }
+  void toggleEmojiKeyboardContainer() {
+    if (isShowEmojiContainer) {
+      showKeyboard();
+      hideEmojiContainer();
+    } else {
+      hideKeyboard();
+      showEmojiContainer();
+    }
+  }
 
   @override
   void dispose() {
@@ -183,14 +175,14 @@ class _BottomChatFieldState extends State<BottomChatField> {
                       child: Row(
                         children: [
                           IconButton(
-                            onPressed: (){}, // toggleEmojiKeyboardContainer,
+                            onPressed:  toggleEmojiKeyboardContainer,
                             icon: const Icon(
                               Icons.emoji_emotions,
                               color: Colors.grey,
                             ),
                           ),
                           IconButton(
-                            onPressed: () {}, //selectGIF,
+                            onPressed: selectGIF,
                             icon: const Icon(
                               Icons.gif,
                               color: Colors.grey,
@@ -206,14 +198,14 @@ class _BottomChatFieldState extends State<BottomChatField> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         IconButton(
-                          onPressed: () {}, //selectImage,
+                          onPressed:  selectImage,
                           icon: const Icon(
                             Icons.camera_alt,
                             color: Colors.grey,
                           ),
                         ),
                         IconButton(
-                          onPressed: () {}, // selectVideo,
+                          onPressed:  selectVideo,
                           icon: const Icon(
                             Icons.attach_file,
                             color: Colors.grey,
@@ -258,6 +250,25 @@ class _BottomChatFieldState extends State<BottomChatField> {
             ),
           ],
         ),
+         isShowEmojiContainer
+            ? SizedBox(
+                height: 310,
+                child: EmojiPicker(
+                  onEmojiSelected: ((category, emoji) {
+                    setState(() {
+                      _messageController.text =
+                          _messageController.text + emoji.emoji;
+                    });
+
+                    if (!isShowSendButton) {
+                      setState(() {
+                        isShowSendButton = true;
+                      });
+                    }
+                  }),
+                ),
+              )
+            : const SizedBox(),
       ],
     );
   }

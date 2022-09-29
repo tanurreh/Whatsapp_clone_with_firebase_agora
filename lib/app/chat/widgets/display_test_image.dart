@@ -1,6 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:whatsapp_clone/app/chat/chat_enum.dart';
+import 'package:whatsapp_clone/app/chat/widgets/video_player.item.dart';
 
 
 class DisplayTextImageGIF extends StatelessWidget {
@@ -48,18 +50,16 @@ class DisplayTextImageGIF extends StatelessWidget {
                   ),
                 );
               })
-            : type == MessageEnum.video
-                ? SizedBox()
-                : SizedBox();
-    //  VideoPlayerItem(
-    //     videoUrl: message,
-    //   )
-    // : type == MessageEnum.gif
-    //     ? CachedNetworkImage(
-    //         imageUrl: message,
-    //       )
-    //     : CachedNetworkImage(
-    //         imageUrl: message,
-    //       );
+            : type == MessageEnum.video ?
+     VideoPlayerItem(
+        videoUrl: message,
+      )
+    : type == MessageEnum.gif
+        ? CachedNetworkImage(
+            imageUrl: message,
+          )
+        : CachedNetworkImage(
+            imageUrl: message,
+          );
   }
 }

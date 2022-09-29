@@ -1,5 +1,6 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_contacts/contact.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 import 'package:whatsapp_clone/app/auth/controller/auth_controller.dart';
@@ -96,9 +97,9 @@ class ChatController extends GetxController {
       var timeSent = DateTime.now();
       UserModel reciverUserData;
 
-      var UserDataMap = await db.userCollection.doc(recieverUserId).get();
+      var userDataMap = await db.userCollection.doc(recieverUserId).get();
       reciverUserData =
-          UserModel.fromMap(UserDataMap.data() as Map<String, dynamic>);
+          UserModel.fromMap(userDataMap.data() as Map<String, dynamic>);
       var messageId = Uuid().v1();
       _saveDataToContactsSubcollection(
           senderUser, reciverUserData, text, timeSent, recieverUserId);
@@ -158,5 +159,91 @@ class ChatController extends GetxController {
       }
       return messages;
     });
+  }
+
+  void sendFileMessage({
+    required File file,
+    required MessageEnum messageEnum,
+     required String recieverUserId,
+    required UserModel senderUserData,
+  }) async {
+    try{
+       var timeSent = DateTime.now();
+       var messageId = Uuid().v1();
+       String imageUrl =
+            await  _userController.storeFileToFirebase("chat/${messageEnum.type}/${senderUserData.uid}/$recieverUserId/$messageId", file);
+
+     
+      UserModel reciverUserData;
+      var UserDataMap = await db.userCollection.doc(recieverUserId).get();
+      reciverUserData =
+          UserModel.fromMap(UserDataMap.data() as Map<String, dynamic>);
+      String contactMsg;
+
+      switch (messageEnum) {
+        case MessageEnum.image:
+          contactMsg = '📷 Photo';
+          break;
+        case MessageEnum.video:
+          contactMsg = '📸 Video';
+          break;
+        case MessageEnum.audio:
+          contactMsg = '🎵 Audio';
+          break;
+        case MessageEnum.gif:
+          contactMsg = 'GIF';
+          break;
+        default:
+          contactMsg = 'GIF';
+      }
+     
+      _saveDataToContactsSubcollection(
+          senderUserData, reciverUserData, contactMsg, timeSent, recieverUserId);
+      _saveMessageToMessageSubCollection(
+        username: senderUserData.name,
+        recieverUserId: recieverUserId,
+        text: imageUrl,
+        timeSent: timeSent,
+        messageId: messageId,
+        messageType: messageEnum,
+        reciverUsername: reciverUserData.name,
+      );
+
+
+    } on FirebaseException catch(e){
+       Get.snackbar("File Not Sent", e.toString());
+    }
+  }
+
+  void sendGIFMessage({
+    required String gifUrl,
+    required String recieverUserId,
+    required UserModel senderUserData,
+  }) async {
+    try {
+      var timeSent = DateTime.now();
+      UserModel? recieverUserData;
+       UserModel reciverUserData;
+      var UserDataMap = await db.userCollection.doc(recieverUserId).get();
+      reciverUserData =
+          UserModel.fromMap(UserDataMap.data() as Map<String, dynamic>);
+
+ 
+
+      var messageId = const Uuid().v1();
+ _saveDataToContactsSubcollection(
+          senderUserData, reciverUserData, 'GIF', timeSent, recieverUserId);
+      _saveMessageToMessageSubCollection(
+        username: senderUserData.name,
+        recieverUserId: recieverUserId,
+        text:  gifUrl,
+        timeSent: timeSent,
+        messageId: messageId,
+        messageType: MessageEnum.gif,
+        reciverUsername: reciverUserData.name,
+      );
+    } catch (e) {
+      Get.snackbar("GIF Not Sent", e.toString());
+    }
   }
 }
