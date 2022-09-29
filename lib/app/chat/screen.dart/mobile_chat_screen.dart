@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whatsapp_clone/app/auth/controller/auth_controller.dart';
 import 'package:whatsapp_clone/app/chat/widgets/bottom_text_feild.dart';
+import 'package:whatsapp_clone/app/chat/widgets/chat_list.dart';
 import 'package:whatsapp_clone/app/data/constants.dart';
 import 'package:whatsapp_clone/app/model/user_model.dart';
 
@@ -33,10 +34,10 @@ class MobileChatScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: CustomColor.appBarColor,
-        title: StreamBuilder(
+        title: StreamBuilder<UserModel>(
             stream: AuthController.instance.getCurrentUser(uid),
             builder: ((context, snapshot) {
-              UserModel _user = snapshot.data! as UserModel;
+              UserModel _user = snapshot.data!;
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
               }
@@ -93,13 +94,12 @@ class MobileChatScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          //  Expanded(
-          //   child: SizedBox(),
-          // //   child: ChatList(
-          // //     recieverUserId: uid,
-          // //     isGroupChat: isGroupChat,
-          // //   ),
-          // ),
+          Expanded(
+            child: ChatList(
+              recieverUserId: uid,
+              //isGroupChat: isGroupChat,
+            ),
+          ),
           BottomChatField(
             recieverUserId: uid,
             //isGroupChat: isGroupChat,

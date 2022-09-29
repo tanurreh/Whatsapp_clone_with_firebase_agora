@@ -74,9 +74,13 @@ class AuthController extends GetxController {
     }
   }
 
-  Stream<UserModel>getCurrentUser(String uid) {
+  Stream<UserModel> getCurrentUser(String uid) {
     return db.userCollection.doc(uid).snapshots().map(
-        (event) => UserModel.fromMap(event.data()as Map<String, dynamic>));
+        (event) => UserModel.fromMap(event.data() as Map<String, dynamic>));
+  }
+
+  getUserStatus(String uid, bool isOnline) async {
+    await db.userCollection.doc(uid).update({'isOnline': isOnline});
   }
 
   signOut() async {

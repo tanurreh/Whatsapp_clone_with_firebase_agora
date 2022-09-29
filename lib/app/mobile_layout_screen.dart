@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:whatsapp_clone/app/auth/controller/auth_controller.dart';
 import 'package:whatsapp_clone/app/auth/controller/user_controller.dart';
 import 'package:whatsapp_clone/app/chat/widgets/contact_list.dart';
 import 'package:whatsapp_clone/app/data/constants.dart';
@@ -29,20 +30,20 @@ class _MobileLayoutScreenState extends State<MobileLayoutScreen>
     WidgetsBinding.instance.removeObserver(this);
   }
 
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   super.didChangeAppLifecycleState(state);
-  //   switch (state) {
-  //     case AppLifecycleState.resumed:
-  //       ref.read(authControllerProvider).setUserState(true);
-  //       break;
-  //     case AppLifecycleState.inactive:
-  //     case AppLifecycleState.detached:
-  //     case AppLifecycleState.paused:
-  //       ref.read(authControllerProvider).setUserState(false);
-  //       break;
-  //   }
-  // }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        AuthController.instance.getUserStatus(_userController.user.uid, true);
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.paused:
+       AuthController.instance.getUserStatus(_userController.user.uid, false);
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

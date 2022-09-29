@@ -126,9 +126,7 @@ class ChatController extends GetxController {
       List<ChatContact> contacts = [];
       for (var document in event.docs) {
         var chatContact = ChatContact.fromMap(document.data());
-        var userData = await db.userCollection
-            .doc(chatContact.contactId)
-            .get();
+        var userData = await db.userCollection.doc(chatContact.contactId).get();
         var user = UserModel.fromMap(userData.data() as Map<String, dynamic>);
 
         contacts.add(
@@ -142,6 +140,23 @@ class ChatController extends GetxController {
         );
       }
       return contacts;
+    });
+  }
+
+  Stream<List<Message>> getChatStream(String recieverUserId) {
+    return db.userCollection
+        .doc(_userController.user.uid)
+        .collection('chats')
+        .doc(recieverUserId)
+        .collection('message')
+        .orderBy('timeSent')
+        .snapshots()
+        .map((event) {
+      List<Message> messages = [];
+      for (var element in event.docs) {
+        messages.add(Message.fromMap(element.data()));
+      }
+      return messages;
     });
   }
 }

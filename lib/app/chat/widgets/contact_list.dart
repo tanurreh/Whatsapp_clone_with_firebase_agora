@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:whatsapp_clone/app/chat/controller/chat_controller.dart';
 import 'package:whatsapp_clone/app/chat/model/chat_contact_model.dart';
+import 'package:whatsapp_clone/app/chat/screen.dart/mobile_chat_screen.dart';
 import 'package:whatsapp_clone/app/data/constants.dart';
 
 class ContactsList extends StatelessWidget {
@@ -102,6 +103,9 @@ class ContactsList extends StatelessWidget {
                         children: [
                           InkWell(
                             onTap: () {
+                              Get.to(()=> MobileChatScreen(name: chatContactData.name, uid: chatContactData.contactId,
+
+                              ) );
                               // Navigator.pushNamed(
                               //   context,
                               //   MobileChatScreen.routeName,
