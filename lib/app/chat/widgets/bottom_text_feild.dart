@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:whatsapp_clone/app/auth/controller/user_controller.dart';
 import 'package:whatsapp_clone/app/chat/chat_enum.dart';
 import 'package:whatsapp_clone/app/chat/controller/chat_controller.dart';
@@ -28,7 +31,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
    
   bool isShowSendButton = false;
   final TextEditingController _messageController = TextEditingController();
-  //FlutterSoundRecorder? _soundRecorder;
+  FlutterSoundRecorder? _soundRecorder;
   bool isRecorderInit = false;
   bool isShowEmojiContainer = false;
   bool isRecording = false;
@@ -38,18 +41,18 @@ class _BottomChatFieldState extends State<BottomChatField> {
   @override
   void initState() {
     super.initState();
-    // _soundRecorder = FlutterSoundRecorder();
-    //openAudio();
+     _soundRecorder = FlutterSoundRecorder();
+    openAudio();
   }
 
-  // void openAudio() async {
-  //   final status = await Permission.microphone.request();
-  //   if (status != PermissionStatus.granted) {
-  //     throw RecordingPermissionException('Mic permission not allowed!');
-  //   }
-  //   await _soundRecorder!.openRecorder();
-  //   isRecorderInit = true;
-  // }
+  void openAudio() async {
+    final status = await Permission.microphone.request();
+    if (status != PermissionStatus.granted) {
+      throw RecordingPermissionException('Mic permission not allowed!');
+    }
+    await _soundRecorder!.openRecorder();
+    isRecorderInit = true;
+  }
 
   void sendTextMessage() async {
     if (isShowSendButton) {
@@ -62,25 +65,25 @@ class _BottomChatFieldState extends State<BottomChatField> {
         _messageController.text = '';
       });
     }
-     //else {
-      // var tempDir = await getTemporaryDirectory();
-      // var path = '${tempDir.path}/flutter_sound.aac';
-      // if (!isRecorderInit) {
-      //   return;
-      // }
-      // if (isRecording) {
-      //   await _soundRecorder!.stopRecorder();
-      //   sendFileMessage(File(path), MessageEnum.audio);
-      // } else {
-      //   await _soundRecorder!.startRecorder(
-      //     toFile: path,
-      //   );
-      // }
+     else {
+      var tempDir = await getTemporaryDirectory();
+      var path = '${tempDir.path}/flutter_sound.aac';
+      if (!isRecorderInit) {
+        return;
+      }
+      if (isRecording) {
+        await _soundRecorder!.stopRecorder();
+         _chatController.sendFileMessage(  file: File(path), messageEnum:MessageEnum.audio, recieverUserId: widget.recieverUserId, senderUserData: _userController.currentUser,);
+      } else {
+        await _soundRecorder!.startRecorder(
+          toFile: path,
+        );
+      }
 
-      // setState(() {
-      //   isRecording = !isRecording;
-      // });
-    //}
+      setState(() {
+        isRecording = !isRecording;
+      });
+    }
   }
 
 
