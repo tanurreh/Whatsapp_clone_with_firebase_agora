@@ -32,19 +32,19 @@ class _ChatListState extends State<ChatList> {
     messageController.dispose();
   }
 
-  // void onMessageSwipe(
-  //   String message,
-  //   bool isMe,
-  //   MessageEnum messageEnum,
-  // ) {
-  //   ref.read(messageReplyProvider.state).update(
-  //         (state) => MessageReply(
-  //           message,
-  //           isMe,
-  //           messageEnum,
-  //         ),
-  //       );
-  // }
+  void onMessageSwipe(
+    String message,
+    bool isMe,
+    MessageEnum messageEnum,
+  ) {
+    // ref.read(messageReplyProvider.state).update(
+    //       (state) => MessageReply(
+    //         message,
+    //         isMe,
+    //         messageEnum,
+    //       ),
+       // );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,29 +83,29 @@ class _ChatListState extends State<ChatList> {
                   message: messageData.text,
                   date: timeSent,
                   type: messageData.type,
-                  // repliedText: messageData.repliedMessage,
-                  // username: messageData.repliedTo,
-                  // repliedMessageType: messageData.repliedMessageType,
-                  // onLeftSwipe: () => onMessageSwipe(
-                  //   messageData.text,
-                  //   true,
-                  //   messageData.type,
-                  // ),
-                  // isSeen: messageData.isSeen,
+                  repliedText: messageData.repliedMessage,
+                  username: messageData.repliedTo,
+                  repliedMessageType: messageData.repliedMessageType,
+                  onLeftSwipe: () => onMessageSwipe(
+                    messageData.text,
+                    true,
+                    messageData.type,
+                  ),
+                 isSeen: messageData.isSeen,
                 );
               }
               return SenderMessageCard(
                 message: messageData.text,
                 date: timeSent,
                 type: messageData.type,
-                // username: messageData.repliedTo,
-                // repliedMessageType: messageData.repliedMessageType,
-                // onRightSwipe: () => onMessageSwipe(
-                //   messageData.text,
-                //   false,
-                //   messageData.type,
-                // ),
-                // repliedText: messageData.repliedMessage,
+                username: messageData.repliedTo,
+                repliedMessageType: messageData.repliedMessageType,
+                onRightSwipe: () => onMessageSwipe(
+                  messageData.text,
+                  false,
+                  messageData.type,
+                ),
+                repliedText: messageData.repliedMessage,
               );
             },
           );

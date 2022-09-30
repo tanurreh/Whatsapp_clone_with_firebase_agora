@@ -8,6 +8,7 @@ import 'package:whatsapp_clone/app/auth/controller/user_controller.dart';
 import 'package:whatsapp_clone/app/chat/chat_enum.dart';
 import 'package:whatsapp_clone/app/chat/model/chat_contact_model.dart';
 import 'package:whatsapp_clone/app/chat/model/message_model.dart';
+import 'package:whatsapp_clone/app/chat/model/message_reply.dart';
 import 'package:whatsapp_clone/app/model/user_model.dart';
 import 'package:whatsapp_clone/app/services.dart/database_services.dart';
 
@@ -58,6 +59,9 @@ class ChatController extends GetxController {
     required String username,
     required String reciverUsername,
     required MessageEnum messageType,
+    required MessageReply? messageReply,
+    required String senderUsername,
+    required String? recieverUserName,
   }) async {
     var message = Message(
       senderId: _authController.user.uid,
@@ -67,6 +71,15 @@ class ChatController extends GetxController {
       timeSent: timeSent,
       messageId: messageId,
       isSeen: false,
+      repliedMessage: messageReply == null ? '' : messageReply.message,
+      repliedTo: messageReply == null
+          ? ''
+          : messageReply.isMe
+              ? senderUsername
+              : recieverUserName ?? '',
+      repliedMessageType:
+          messageReply == null ? MessageEnum.text : messageReply.messageEnum,
+      
     );
 
     ///sender
@@ -92,6 +105,7 @@ class ChatController extends GetxController {
     required String text,
     required String recieverUserId,
     required UserModel senderUser,
+    required MessageReply? messageReply,
   }) async {
     try {
       var timeSent = DateTime.now();
@@ -111,6 +125,9 @@ class ChatController extends GetxController {
         messageId: messageId,
         messageType: MessageEnum.text,
         reciverUsername: reciverUserData.name,
+        messageReply: messageReply,
+        recieverUserName: reciverUserData.name, 
+        senderUsername: senderUser.name,
       );
     } on FirebaseException catch (e) {
       Get.snackbar("Message Not Sent", e.toString());
@@ -164,8 +181,9 @@ class ChatController extends GetxController {
   void sendFileMessage({
     required File file,
     required MessageEnum messageEnum,
-     required String recieverUserId,
+    required String recieverUserId,
     required UserModel senderUserData,
+    required MessageReply? messageReply,
   }) async {
     try{
        var timeSent = DateTime.now();
@@ -206,7 +224,10 @@ class ChatController extends GetxController {
         timeSent: timeSent,
         messageId: messageId,
         messageType: messageEnum,
-        reciverUsername: reciverUserData.name,
+        reciverUsername: reciverUserData.name, 
+        messageReply: messageReply,
+        recieverUserName: reciverUserData.name, 
+        senderUsername: senderUserData.name,
       );
 
 
@@ -219,6 +240,7 @@ class ChatController extends GetxController {
     required String gifUrl,
     required String recieverUserId,
     required UserModel senderUserData,
+    required MessageReply? messageReply,
   }) async {
     try {
       var timeSent = DateTime.now();
@@ -241,6 +263,9 @@ class ChatController extends GetxController {
         messageId: messageId,
         messageType: MessageEnum.gif,
         reciverUsername: reciverUserData.name,
+        messageReply: messageReply,
+        recieverUserName: reciverUserData.name, 
+        senderUsername: senderUserData.name,
       );
     } catch (e) {
       Get.snackbar("GIF Not Sent", e.toString());
