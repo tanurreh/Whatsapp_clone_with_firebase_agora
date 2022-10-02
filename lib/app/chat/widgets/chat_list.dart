@@ -11,11 +11,11 @@ import 'package:whatsapp_clone/app/chat/widgets/sender_message_card.dart';
 
 class ChatList extends StatefulWidget {
   final String recieverUserId;
-  // final bool isGroupChat;
+  final bool isGroupChat;
   const ChatList({
     Key? key,
     required this.recieverUserId,
-    //required this.isGroupChat,
+    required this.isGroupChat,
   }) : super(key: key);
 
   @override
@@ -49,7 +49,7 @@ class _ChatListState extends State<ChatList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Message>>(
-        stream: _chatController.getChatStream(widget.recieverUserId),
+        stream: widget.isGroupChat ?  _chatController.getGroupChatStream(widget.recieverUserId) : _chatController.getChatStream(widget.recieverUserId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: const CircularProgressIndicator());
@@ -59,7 +59,7 @@ class _ChatListState extends State<ChatList> {
             messageController
                 .jumpTo(messageController.position.maxScrollExtent);
           });
-          print(snapshot.data!.length);
+       
           return ListView.builder(
             controller: messageController,
             itemCount: snapshot.data!.length,
@@ -68,24 +68,20 @@ class _ChatListState extends State<ChatList> {
               print(messageData);
               var timeSent = DateFormat.Hm().format(messageData.timeSent);
 
-              // if (!messageData.isSeen &&
-              //     messageData.recieverid ==
-              //         FirebaseAuth.instance.currentUser!.uid) {
-              //   ref.read(chatControllerProvider).setChatMessageSeen(
-              //         context,
-              //         widget.recieverUserId,
-              //         messageData.messageId,
-              //       );
-              // }
+              if (!messageData.isSeen &&
+                  messageData.recieverid ==
+                      FirebaseAuth.instance.currentUser!.uid) {
+                _chatController.setChatMessageSeen(
+                      widget.recieverUserId,
+                      messageData.messageId,
+                    );
+              }
               if (messageData.senderId ==
                   FirebaseAuth.instance.currentUser!.uid) {
                 return MyMessageCard(
                   message: messageData.text,
                   date: timeSent,
                   type: messageData.type,
-                  repliedText: messageData.repliedMessage,
-                  username: messageData.repliedTo,
-                  repliedMessageType: messageData.repliedMessageType,
                   onLeftSwipe: () => onMessageSwipe(
                     messageData.text,
                     true,
@@ -98,14 +94,12 @@ class _ChatListState extends State<ChatList> {
                 message: messageData.text,
                 date: timeSent,
                 type: messageData.type,
-                username: messageData.repliedTo,
-                repliedMessageType: messageData.repliedMessageType,
+               
                 onRightSwipe: () => onMessageSwipe(
                   messageData.text,
                   false,
                   messageData.type,
                 ),
-                repliedText: messageData.repliedMessage,
               );
             },
           );

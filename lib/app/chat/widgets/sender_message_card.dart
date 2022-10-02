@@ -11,21 +11,15 @@ class SenderMessageCard extends StatelessWidget {
     required this.date,
     required this.type,
     required this.onRightSwipe,
-    required this.repliedText,
-    required this.username,
-    required this.repliedMessageType,
+
   }) : super(key: key);
   final String message;
   final String date;
   final MessageEnum type;
   final VoidCallback onRightSwipe;
-  final String repliedText;
-  final String username;
-  final MessageEnum repliedMessageType;
 
   @override
   Widget build(BuildContext context) {
-     final isReplying = repliedText.isNotEmpty;
 
     return  SwipeTo(
       onRightSwipe: onRightSwipe,
@@ -59,31 +53,31 @@ class SenderMessageCard extends StatelessWidget {
                           ),
                     child: Column(
                       children: [
-                        if (isReplying) ...[
-                          Text(
-                            username,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: CustomColor.backgroundColor.withOpacity(0.5),
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(
-                                  5,
-                                ),
-                              ),
-                            ),
-                            child: DisplayTextImageGIF(
-                              message: repliedText,
-                              type: repliedMessageType,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                        ],
+                        // if (isReplying) ...[
+                        //   Text(
+                        //     username,
+                        //     style: const TextStyle(
+                        //       fontWeight: FontWeight.bold,
+                        //     ),
+                        //   ),
+                        //   const SizedBox(height: 3),
+                        //   Container(
+                        //     padding: const EdgeInsets.all(10),
+                        //     decoration: BoxDecoration(
+                        //       color: CustomColor.backgroundColor.withOpacity(0.5),
+                        //       borderRadius: const BorderRadius.all(
+                        //         Radius.circular(
+                        //           5,
+                        //         ),
+                        //       ),
+                        //     ),
+                        //     child: DisplayTextImageGIF(
+                        //       message: repliedText,
+                        //       type: repliedMessageType,
+                        //     ),
+                        //   ),
+                        //   const SizedBox(height: 8),
+                        // ],
                         DisplayTextImageGIF(
                           message: message,
                           type: type,

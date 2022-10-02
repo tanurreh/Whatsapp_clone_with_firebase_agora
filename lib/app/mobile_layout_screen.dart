@@ -1,10 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:whatsapp_clone/app/auth/controller/auth_controller.dart';
 import 'package:whatsapp_clone/app/auth/controller/user_controller.dart';
 import 'package:whatsapp_clone/app/chat/widgets/contact_list.dart';
 import 'package:whatsapp_clone/app/data/constants.dart';
+import 'package:whatsapp_clone/app/group/screen/create_group_screen.dart';
 import 'package:whatsapp_clone/app/select_contacts/screen/contact_screen.dart';
+import 'package:whatsapp_clone/app/services.dart/image_picker_services.dart';
+import 'package:whatsapp_clone/app/status/screens/confirm_status_screen.dart';
+import 'package:whatsapp_clone/app/status/screens/status_contact_screen.dart';
 
 class MobileLayoutScreen extends StatefulWidget {
   const MobileLayoutScreen({Key? key}) : super(key: key);
@@ -15,7 +21,7 @@ class MobileLayoutScreen extends StatefulWidget {
 
 class _MobileLayoutScreenState extends State<MobileLayoutScreen>
     with WidgetsBindingObserver, TickerProviderStateMixin {
- final  UserController _userController = Get.put(UserController());
+  final UserController _userController = Get.put(UserController());
   late TabController tabBarController;
   @override
   void initState() {
@@ -40,7 +46,7 @@ class _MobileLayoutScreenState extends State<MobileLayoutScreen>
       case AppLifecycleState.inactive:
       case AppLifecycleState.detached:
       case AppLifecycleState.paused:
-       AuthController.instance.getUserStatus(_userController.user.uid, false);
+        AuthController.instance.getUserStatus(_userController.user.uid, false);
         break;
     }
   }
@@ -77,7 +83,9 @@ class _MobileLayoutScreenState extends State<MobileLayoutScreen>
                   child: const Text(
                     'Create Group',
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    Future(()=> Get.to(() => CreateGroupScreen()));
+                  },
                 )
               ],
             ),
@@ -106,29 +114,24 @@ class _MobileLayoutScreenState extends State<MobileLayoutScreen>
         ),
         body: TabBarView(
           controller: tabBarController,
-          children: const [
+          children:  [
             ContactsList(),
-            Text('StatusContactsScreen'),
-            //  ContactsList(),
-            // StatusContactsScreen(),
+            StatusContactsScreen(),
             Text('Calls')
           ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            Get.to(() => SelectContactsScreen());
-            // if (tabBarController.index == 0) {
-            //   Navigator.pushNamed(context, SelectContactsScreen.routeName);
-            // } else {
-            //   File? pickedImage = await pickImageFromGallery(context);
-            //   if (pickedImage != null) {
-            //     Navigator.pushNamed(
-            //       context,
-            //       ConfirmStatusScreen.routeName,
-            //       arguments: pickedImage,
-            //     );
-            //   }
-            // }
+            if (tabBarController.index == 0) {
+              Get.to(() => SelectContactsScreen());
+            } else {
+              File? pickedImage = await PickerServices().pickImageFromGallery();
+              if (pickedImage != null) {
+                Get.to(() => ConfirmStatusScreen(
+                      file: pickedImage,
+                    ));
+              }
+            }
           },
           backgroundColor: CustomColor.tabColor,
           child: const Icon(

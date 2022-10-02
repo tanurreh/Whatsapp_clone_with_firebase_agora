@@ -44,7 +44,7 @@ class SelectContactController extends GetxController {
         );
         if (selectedPhoneNum == userData.phoneNumber) {
           isFound = true;
-          Get.to(() => MobileChatScreen(name: userData.name, uid: userData.uid,));
+          Get.to(() => MobileChatScreen(name: userData.name, uid: userData.uid, isGroupChat: false, profilePic: userData.profilePic,));
           // Navigator.pushNamed(
           //   context,
           //   MobileChatScreen.routeName,

@@ -8,9 +8,11 @@ import 'package:whatsapp_clone/app/auth/controller/user_controller.dart';
 import 'package:whatsapp_clone/app/chat/chat_enum.dart';
 import 'package:whatsapp_clone/app/chat/model/chat_contact_model.dart';
 import 'package:whatsapp_clone/app/chat/model/message_model.dart';
-import 'package:whatsapp_clone/app/chat/model/message_reply.dart';
+import 'package:whatsapp_clone/app/group/model/grou_model.dart';
 import 'package:whatsapp_clone/app/model/user_model.dart';
 import 'package:whatsapp_clone/app/services.dart/database_services.dart';
+
+import '../../group/model/grou_model.dart';
 
 class ChatController extends GetxController {
   DatabaseServices db = DatabaseServices();
@@ -19,36 +21,44 @@ class ChatController extends GetxController {
 
   void _saveDataToContactsSubcollection(
     UserModel senderUserData,
-    UserModel recieverUserData,
+    UserModel? recieverUserData,
     String text,
     DateTime timeSent,
     String recieverUserId,
+    bool isGroupChat,
   ) async {
-    //reciver
-    var recieverChatContact = ChatContact(
-        name: senderUserData.name,
-        profilePic: senderUserData.profilePic,
-        contactId: senderUserData.uid,
-        timeSent: timeSent,
-        lastMessage: text);
-    await db.userCollection
-        .doc(recieverUserId)
-        .collection('chats')
-        .doc(_authController.user.uid)
-        .set(recieverChatContact.toMap());
+    if (isGroupChat) {
+      await db.groupCollection.doc(recieverUserId).update({
+        'lastMessage': text,
+        'timeSent': DateTime.now().millisecondsSinceEpoch,
+      });
+    } else {
+      //reciver
+      var recieverChatContact = ChatContact(
+          name: senderUserData.name,
+          profilePic: senderUserData.profilePic,
+          contactId: senderUserData.uid,
+          timeSent: timeSent,
+          lastMessage: text);
+      await db.userCollection
+          .doc(recieverUserId)
+          .collection('chats')
+          .doc(_authController.user.uid)
+          .set(recieverChatContact.toMap());
 
-    //sender
-    var senderChatContact = ChatContact(
-        name: recieverUserData.name,
-        profilePic: recieverUserData.profilePic,
-        contactId: recieverUserData.uid,
-        timeSent: timeSent,
-        lastMessage: text);
-    await db.userCollection
-        .doc(_authController.user.uid)
-        .collection('chats')
-        .doc(recieverUserId)
-        .set(senderChatContact.toMap());
+      //sender
+      var senderChatContact = ChatContact(
+          name: recieverUserData!.name,
+          profilePic: recieverUserData.profilePic,
+          contactId: recieverUserData.uid,
+          timeSent: timeSent,
+          lastMessage: text);
+      await db.userCollection
+          .doc(_authController.user.uid)
+          .collection('chats')
+          .doc(recieverUserId)
+          .set(senderChatContact.toMap());
+    }
   }
 
   void _saveMessageToMessageSubCollection({
@@ -57,12 +67,11 @@ class ChatController extends GetxController {
     required DateTime timeSent,
     required String messageId,
     required String username,
-    required String reciverUsername,
+    required String? reciverUsername,
     required MessageEnum messageType,
-    required MessageReply? messageReply,
-    required String senderUsername,
-    required String? recieverUserName,
+    required bool isGroupChat,
   }) async {
+    print(isGroupChat);
     var message = Message(
       senderId: _authController.user.uid,
       recieverid: recieverUserId,
@@ -71,52 +80,56 @@ class ChatController extends GetxController {
       timeSent: timeSent,
       messageId: messageId,
       isSeen: false,
-      repliedMessage: messageReply == null ? '' : messageReply.message,
-      repliedTo: messageReply == null
-          ? ''
-          : messageReply.isMe
-              ? senderUsername
-              : recieverUserName ?? '',
-      repliedMessageType:
-          messageReply == null ? MessageEnum.text : messageReply.messageEnum,
-      
     );
 
-    ///sender
-    await db.userCollection
-        .doc(_authController.user.uid)
-        .collection('chats')
-        .doc(recieverUserId)
-        .collection('message')
-        .doc(messageId)
-        .set(message.toMap());
+    if (isGroupChat) {
+      await db.groupCollection
+          .doc(recieverUserId)
+          .collection('chats')
+          .doc(messageId)
+          .set(
+            message.toMap(),
+          );
+    } else {
+      ///sender
+      await db.userCollection
+          .doc(_authController.user.uid)
+          .collection('chats')
+          .doc(recieverUserId)
+          .collection('message')
+          .doc(messageId)
+          .set(message.toMap());
 
-    /// reciever
-    await db.userCollection
-        .doc(recieverUserId)
-        .collection('chats')
-        .doc(_authController.user.uid)
-        .collection('message')
-        .doc(messageId)
-        .set(message.toMap());
+      /// reciever
+      await db.userCollection
+          .doc(recieverUserId)
+          .collection('chats')
+          .doc(_authController.user.uid)
+          .collection('message')
+          .doc(messageId)
+          .set(message.toMap());
+    }
   }
 
   void sendTextMessage({
     required String text,
     required String recieverUserId,
     required UserModel senderUser,
-    required MessageReply? messageReply,
+    required bool isGroupChat,
   }) async {
     try {
       var timeSent = DateTime.now();
-      UserModel reciverUserData;
+      UserModel? reciverUserData;
 
-      var userDataMap = await db.userCollection.doc(recieverUserId).get();
-      reciverUserData =
-          UserModel.fromMap(userDataMap.data() as Map<String, dynamic>);
+      if (!isGroupChat) {
+        var userDataMap = await db.userCollection.doc(recieverUserId).get();
+        reciverUserData =
+            UserModel.fromMap(userDataMap.data() as Map<String, dynamic>);
+      }
       var messageId = Uuid().v1();
-      _saveDataToContactsSubcollection(
-          senderUser, reciverUserData, text, timeSent, recieverUserId);
+      _saveDataToContactsSubcollection(senderUser, reciverUserData, text,
+          timeSent, recieverUserId, isGroupChat);
+
       _saveMessageToMessageSubCollection(
         username: senderUser.name,
         recieverUserId: recieverUserId,
@@ -124,10 +137,8 @@ class ChatController extends GetxController {
         timeSent: timeSent,
         messageId: messageId,
         messageType: MessageEnum.text,
-        reciverUsername: reciverUserData.name,
-        messageReply: messageReply,
-        recieverUserName: reciverUserData.name, 
-        senderUsername: senderUser.name,
+        reciverUsername: reciverUserData?.name,
+        isGroupChat: isGroupChat,
       );
     } on FirebaseException catch (e) {
       Get.snackbar("Message Not Sent", e.toString());
@@ -183,19 +194,23 @@ class ChatController extends GetxController {
     required MessageEnum messageEnum,
     required String recieverUserId,
     required UserModel senderUserData,
-    required MessageReply? messageReply,
+    required bool isGroupChat,
   }) async {
-    try{
-       var timeSent = DateTime.now();
-       var messageId = Uuid().v1();
-       String imageUrl =
-            await  _userController.storeFileToFirebase("chat/${messageEnum.type}/${senderUserData.uid}/$recieverUserId/$messageId", file);
+    try {
+      var timeSent = DateTime.now();
+      var messageId = Uuid().v1();
+      String imageUrl = await _userController.storeFileToFirebase(
+          "chat/${messageEnum.type}/${senderUserData.uid}/$recieverUserId/$messageId",
+          file);
 
-     
-      UserModel reciverUserData;
-      var UserDataMap = await db.userCollection.doc(recieverUserId).get();
-      reciverUserData =
-          UserModel.fromMap(UserDataMap.data() as Map<String, dynamic>);
+      UserModel? reciverUserData;
+
+      if (!isGroupChat) {
+        var userDataMap = await db.userCollection.doc(recieverUserId).get();
+        reciverUserData =
+            UserModel.fromMap(userDataMap.data() as Map<String, dynamic>);
+      }
+
       String contactMsg;
 
       switch (messageEnum) {
@@ -214,9 +229,9 @@ class ChatController extends GetxController {
         default:
           contactMsg = 'GIF';
       }
-     
-      _saveDataToContactsSubcollection(
-          senderUserData, reciverUserData, contactMsg, timeSent, recieverUserId);
+
+      _saveDataToContactsSubcollection(senderUserData, reciverUserData!,
+          contactMsg, timeSent, recieverUserId, isGroupChat);
       _saveMessageToMessageSubCollection(
         username: senderUserData.name,
         recieverUserId: recieverUserId,
@@ -224,15 +239,11 @@ class ChatController extends GetxController {
         timeSent: timeSent,
         messageId: messageId,
         messageType: messageEnum,
-        reciverUsername: reciverUserData.name, 
-        messageReply: messageReply,
-        recieverUserName: reciverUserData.name, 
-        senderUsername: senderUserData.name,
+        reciverUsername: reciverUserData.name,
+        isGroupChat: isGroupChat,
       );
-
-
-    } on FirebaseException catch(e){
-       Get.snackbar("File Not Sent", e.toString());
+    } on FirebaseException catch (e) {
+      Get.snackbar("File Not Sent", e.toString());
     }
   }
 
@@ -240,35 +251,87 @@ class ChatController extends GetxController {
     required String gifUrl,
     required String recieverUserId,
     required UserModel senderUserData,
-    required MessageReply? messageReply,
+    required bool isGroupChat,
   }) async {
     try {
       var timeSent = DateTime.now();
-      UserModel? recieverUserData;
-       UserModel reciverUserData;
-      var UserDataMap = await db.userCollection.doc(recieverUserId).get();
-      reciverUserData =
-          UserModel.fromMap(UserDataMap.data() as Map<String, dynamic>);
+      UserModel? reciverUserData;
 
- 
+     
+      if (!isGroupChat) {
+        var userDataMap = await db.userCollection.doc(recieverUserId).get();
+        reciverUserData =
+            UserModel.fromMap(userDataMap.data() as Map<String, dynamic>);
+      }
 
       var messageId = const Uuid().v1();
- _saveDataToContactsSubcollection(
-          senderUserData, reciverUserData, 'GIF', timeSent, recieverUserId);
+      _saveDataToContactsSubcollection(senderUserData, reciverUserData, 'GIF',
+          timeSent, recieverUserId, isGroupChat);
       _saveMessageToMessageSubCollection(
         username: senderUserData.name,
         recieverUserId: recieverUserId,
-        text:  gifUrl,
+        text: gifUrl,
         timeSent: timeSent,
         messageId: messageId,
         messageType: MessageEnum.gif,
-        reciverUsername: reciverUserData.name,
-        messageReply: messageReply,
-        recieverUserName: reciverUserData.name, 
-        senderUsername: senderUserData.name,
+        reciverUsername: reciverUserData!.name,
+        isGroupChat: isGroupChat,
       );
     } catch (e) {
       Get.snackbar("GIF Not Sent", e.toString());
     }
+  }
+
+  void setChatMessageSeen(
+    String recieverUserId,
+    String messageId,
+  ) async {
+    try {
+      await db.userCollection
+          .doc(_authController.user.uid)
+          .collection('chats')
+          .doc(recieverUserId)
+          .collection('message')
+          .doc(messageId)
+          .update({'isSeen': true});
+
+      await db.userCollection
+          .doc(recieverUserId)
+          .collection('chats')
+          .doc(_authController.user.uid)
+          .collection('message')
+          .doc(messageId)
+          .update({'isSeen': true});
+    } catch (e) {
+      Get.snackbar("Message Not Seen", e.toString());
+    }
+  }
+
+  Stream<List<GroupModel>> getGroupData() {
+    return db.groupCollection.snapshots().map((event) {
+      List<GroupModel> groupList = [];
+      for (var element in event.docs) {
+        var group = GroupModel.fromMap(element.data() as Map<String, dynamic>);
+        if (group.membersUid.contains(_userController.user.uid)) {
+          groupList.add(group);
+        }
+      }
+      return groupList;
+    });
+  }
+
+  Stream<List<Message>> getGroupChatStream(String groudId) {
+    return db.groupCollection
+        .doc(groudId)
+        .collection('chats')
+        .orderBy('timeSent')
+        .snapshots()
+        .map((event) {
+      List<Message> messages = [];
+      for (var document in event.docs) {
+        messages.add(Message.fromMap(document.data()));
+      }
+      return messages;
+    });
   }
 }

@@ -9,9 +9,6 @@ class MyMessageCard extends StatelessWidget {
   final String date;
   final MessageEnum type;
   final VoidCallback onLeftSwipe;
-  final String repliedText;
-  final String username;
-  final MessageEnum repliedMessageType;
   final bool isSeen;
 
   const MyMessageCard({
@@ -20,15 +17,11 @@ class MyMessageCard extends StatelessWidget {
     required this.date,
     required this.type,
     required this.onLeftSwipe,
-    required this.repliedText,
-    required this.username,
-    required this.repliedMessageType,
     required this.isSeen,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final isReplying = repliedText.isNotEmpty;
 
     return  SwipeTo(
       onLeftSwipe: onLeftSwipe,
@@ -62,31 +55,31 @@ class MyMessageCard extends StatelessWidget {
                             ),
                       child: Column(
                         children: [
-                          if (isReplying) ...[
-                            Text(
-                              username,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: CustomColor.backgroundColor.withOpacity(0.5),
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(
-                                    5,
-                                  ),
-                                ),
-                              ),
-                              child: DisplayTextImageGIF(
-                                message: repliedText,
-                                type: repliedMessageType,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                          ],
+                          // if (isReplying) ...[
+                          //   Text(
+                          //     username,
+                          //     style: const TextStyle(
+                          //       fontWeight: FontWeight.bold,
+                          //     ),
+                          //   ),
+                          //   const SizedBox(height: 3),
+                          //   Container(
+                          //     padding: const EdgeInsets.all(10),
+                          //     decoration: BoxDecoration(
+                          //       color: CustomColor.backgroundColor.withOpacity(0.5),
+                          //       borderRadius: const BorderRadius.all(
+                          //         Radius.circular(
+                          //           5,
+                          //         ),
+                          //       ),
+                          //     ),
+                          //     child: DisplayTextImageGIF(
+                          //       message: repliedText,
+                          //       type: repliedMessageType,
+                          //     ),
+                          //   ),
+                          //   const SizedBox(height: 8),
+                          // ],
                           DisplayTextImageGIF(
                             message: message,
                             type: type,

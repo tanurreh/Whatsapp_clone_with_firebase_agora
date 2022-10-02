@@ -14,11 +14,11 @@ import 'package:whatsapp_clone/app/services.dart/image_picker_services.dart';
 
 class BottomChatField extends StatefulWidget {
   final String recieverUserId;
-  //final bool isGroupChat;
+  final bool isGroupChat;
   const BottomChatField({
     Key? key,
     required this.recieverUserId,
-    //required this.isGroupChat,
+    required this.isGroupChat,
   }) : super(key: key);
 
   @override
@@ -60,7 +60,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
          text: _messageController.text.trim(), 
          recieverUserId: widget.recieverUserId,
          senderUser:  _userController.currentUser,
-          messageReply: null,
+         isGroupChat: widget.isGroupChat
       );
       setState(() {
         _messageController.text = '';
@@ -74,7 +74,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
       }
       if (isRecording) {
         await _soundRecorder!.stopRecorder();
-         _chatController.sendFileMessage(  file: File(path), messageEnum:MessageEnum.audio, recieverUserId: widget.recieverUserId, senderUserData: _userController.currentUser, messageReply: null,);
+         _chatController.sendFileMessage(  file: File(path), messageEnum:MessageEnum.audio, recieverUserId: widget.recieverUserId, senderUserData: _userController.currentUser,isGroupChat: widget.isGroupChat);
       } else {
         await _soundRecorder!.startRecorder(
           toFile: path,
@@ -91,14 +91,14 @@ class _BottomChatFieldState extends State<BottomChatField> {
   void selectImage() async {
     File? image = await PickerServices().pickImageFromGallery();
     if (image != null) {
-      _chatController.sendFileMessage(  file: image, messageEnum:MessageEnum.image, recieverUserId: widget.recieverUserId, senderUserData: _userController.currentUser, messageReply: null,);
+      _chatController.sendFileMessage(  file: image, messageEnum:MessageEnum.image, recieverUserId: widget.recieverUserId, senderUserData: _userController.currentUser,isGroupChat: widget.isGroupChat);
     }
   }
 
   void selectVideo() async {
     File? video = await PickerServices().pickVideoFromGallery();
     if (video != null) {
-      _chatController.sendFileMessage(  file: video, messageEnum:MessageEnum.video, recieverUserId: widget.recieverUserId, senderUserData: _userController.currentUser, messageReply: null,);
+      _chatController.sendFileMessage(  file: video, messageEnum:MessageEnum.video, recieverUserId: widget.recieverUserId, senderUserData: _userController.currentUser,isGroupChat: widget.isGroupChat);
     }
   }
 
@@ -109,7 +109,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
        int gifUrlPartIndex = gif.url.lastIndexOf('-') + 1;
     String gifUrlPart = gif.url.substring(gifUrlPartIndex);
     String newgifUrl = 'https://i.giphy.com/media/$gifUrlPart/200.gif';
-    _chatController.sendGIFMessage(gifUrl: newgifUrl, recieverUserId: widget.recieverUserId, senderUserData: _userController.currentUser, messageReply: null);
+    _chatController.sendGIFMessage(gifUrl: newgifUrl, recieverUserId: widget.recieverUserId, senderUserData: _userController.currentUser, isGroupChat: widget.isGroupChat);
     }
   }
 
@@ -142,14 +142,12 @@ class _BottomChatFieldState extends State<BottomChatField> {
   void dispose() {
     super.dispose();
      _messageController.dispose();
-    // _soundRecorder!.closeRecorder();
-    // isRecorderInit = false;
+     _soundRecorder!.closeRecorder();
+     isRecorderInit = false;
   }
 
   @override
   Widget build(BuildContext context) {
-    // final messageReply = ref.watch(messageReplyProvider);
-    // final isShowMessageReply = messageReply != null;
     return Column(
       children: [
         Row(

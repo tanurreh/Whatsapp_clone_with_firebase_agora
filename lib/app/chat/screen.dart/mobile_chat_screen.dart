@@ -1,40 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:whatsapp_clone/app/auth/controller/auth_controller.dart';
+import 'package:whatsapp_clone/app/call/controller/call_controller.dart';
 import 'package:whatsapp_clone/app/chat/widgets/bottom_text_feild.dart';
 import 'package:whatsapp_clone/app/chat/widgets/chat_list.dart';
 import 'package:whatsapp_clone/app/data/constants.dart';
 import 'package:whatsapp_clone/app/model/user_model.dart';
 
 class MobileChatScreen extends StatelessWidget {
-  // static const String routeName = '/mobile-chat-screen';
+
   final String name;
   final String uid;
-  // final bool isGroupChat;
-  // final String profilePic;
+   final bool isGroupChat;
+   final String profilePic;
   const MobileChatScreen({
     Key? key,
     required this.name,
     required this.uid,
-    // required this.isGroupChat,
-    // required this.profilePic,
+    required this.isGroupChat,
+    required this.profilePic,
   }) : super(key: key);
 
-  // void makeCall(WidgetRef ref, BuildContext context) {
-  //   ref.read(callControllerProvider).makeCall(
-  //         context,
-  //         name,
-  //         uid,
-  //         profilePic,
-  //         isGroupChat,
-  //       );
-  // }
+  void makeCall() {
+    Get.put(CallController()).dialCall(
+          name,
+          uid,
+          profilePic,
+          isGroupChat,
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: CustomColor.appBarColor,
-        title: StreamBuilder<UserModel>(
+         title: isGroupChat
+            ? Text(name)
+            : StreamBuilder<UserModel>(
             stream: AuthController.instance.getCurrentUser(uid),
             builder: ((context, snapshot) {
               UserModel _user = snapshot.data!;
@@ -55,31 +58,10 @@ class MobileChatScreen extends StatelessWidget {
                 ],
               );
             })),
-        // title: isGroupChat
-        //     ? Text(name)
-        //     : StreamBuilder<UserModel>(
-        //         stream: ref.read(authControllerProvider).userDataById(uid),
-        //         builder: (context, snapshot) {
-        //           if (snapshot.connectionState == ConnectionState.waiting) {
-        //             return const Loader();
-        //           }
-        //           return Column(
-        //             children: [
-        //               Text(name),
-        //               Text(
-        //                 snapshot.data!.isOnline ? 'online' : 'offline',
-        //                 style: const TextStyle(
-        //                   fontSize: 13,
-        //                   fontWeight: FontWeight.normal,
-        //                 ),
-        //               ),
-        //             ],
-        //           );
-        //         }),
         centerTitle: false,
         actions: [
           IconButton(
-            onPressed: () {}, // => makeCall(ref, context),
+            onPressed:makeCall,
             icon: const Icon(Icons.video_call),
           ),
           IconButton(
@@ -97,12 +79,12 @@ class MobileChatScreen extends StatelessWidget {
           Expanded(
             child: ChatList(
               recieverUserId: uid,
-              //isGroupChat: isGroupChat,
+              isGroupChat: isGroupChat,
             ),
           ),
           BottomChatField(
             recieverUserId: uid,
-            //isGroupChat: isGroupChat,
+            isGroupChat: isGroupChat,
           ),
         ],
       ),
