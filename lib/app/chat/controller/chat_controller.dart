@@ -92,9 +92,9 @@ class ChatController extends GetxController {
           );
     } else {
       ///sender
-      await db.userCollection
-          .doc(_authController.user.uid)
-          .collection('chats')
+      await db.userCollection//collection name ha
+          .doc(_authController.user.uid)// document ha
+          .collection('chats')// sub collection ha
           .doc(recieverUserId)
           .collection('message')
           .doc(messageId)
